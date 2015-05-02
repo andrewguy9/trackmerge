@@ -1,0 +1,55 @@
+#!/bin/bash
+
+eval "$(docopts -V - -h - : "$@" <<EOF
+ismerged
+
+usage:
+  ismerged [--depot=<path>] <pull> [<branches>...]
+----
+rock 0.1.0
+Copyright (C) 2015 Andrew Thomson
+License MIT
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+EOF
+)"
+
+# echo "-----"
+# cat ./usage.txt | docopts -V - -h - : "$@"
+# echo "-----"
+eval "$(cat ./usage.txt | docopts -V - -h - : "$@")"
+
+if [ -z "$path" ]
+then
+  pushd "$path" >/dev/null
+  if [ $? -ne 0 ]
+  then
+    echo "Failed to find depot $path"
+    exit 1
+  fi
+fi
+
+NUMBER=$(echo "$pull" | perl -ne 'if(/^(https?:\/\/github.com\/[^\/]+\/[^\/]+\/pull\/)?(\d+)$/){print "$2\n";exit 0}else{exit 1}')
+if [ $? -ne 0 ]
+then
+  echo "Failed to parse $pull"
+  exit 1
+fi
+DESCRIPTION="Merge pull request #${NUMBER} from "
+
+for branch in "${branches[@]}"
+do
+  git rev-parse --verify $branch > /dev/null 2>/dev/null
+  if [ $? -ne 0 ]
+  then
+    echo "Branch $branch doesn't exist"
+    exit 2
+  fi
+  git log --oneline $branch | grep -c "${DESCRIPTION}" > /dev/null
+  if [ $? -eq 0 ]
+  then
+    echo "Merged  $branch"
+  else
+    echo "Missing $branch"
+  fi
+done
