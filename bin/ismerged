@@ -8,7 +8,7 @@ Checks to see if the pull is present in the branches.
 
 usage:
   ismerged [options] --pull=<pull> [<branches>...]
-  ismerged [options] --ref=<ref>   [<branches>...]
+  ismerged [options] --rev=<rev>   [<branches>...]
 
 Options:
   -h --help      Show this screen.
@@ -33,27 +33,52 @@ then
   fi
 fi
 
-number=$(echo "$pull" | perl -ne 'if(/^(https?:\/\/github.com\/[^\/]+\/[^\/]+\/pull\/)?(\d+)$/){print "$2\n";exit 0}else{exit 1}')
-if [ $? -ne 0 ]
+if [ ! -z "$pull" ]
 then
-  echo "Failed to parse $pull"
-  exit 2
-fi
-description="Merge pull request #${number} from "
-
-for branch in "${branches[@]}"
-do
-  git rev-parse --verify $branch > /dev/null 2>/dev/null
+  number=$(echo "$pull" | perl -ne 'if(/^(https?:\/\/github.com\/[^\/]+\/[^\/]+\/pull\/)?(\d+)$/){print "$2\n";exit 0}else{exit 1}')
   if [ $? -ne 0 ]
   then
-    echo "Branch $branch doesn't exist"
-    exit 3
+    echo "Failed to parse $pull"
+    exit 2
   fi
-  git log --oneline $branch | grep -c "${description}" > /dev/null
-  if [ $? -eq 0 ]
-  then
-    echo "Merged  $branch"
-  else
-    echo "Missing $branch"
-  fi
-done
+  description="Merge pull request #${number} from "
+
+  for branch in "${branches[@]}"
+  do
+    git rev-parse --verify $branch > /dev/null 2>/dev/null
+    if [ $? -ne 0 ]
+    then
+      echo "Branch $branch doesn't exist"
+      exit 3
+    fi
+    git log --oneline $branch | grep -c "${description}" > /dev/null
+    if [ $? -eq 0 ]
+    then
+      echo "Merged  $branch"
+    else
+      echo "Missing $branch"
+    fi
+  done
+elif [ ! -z "$rev" ]
+then
+  for branch in "${branches[@]}"
+  do
+    git rev-parse --verify $branch > /dev/null 2>/dev/null
+    if [ $? -ne 0 ]
+    then
+      echo "Branch $branch doesn't exist"
+      exit 3
+    fi
+    git rev-list $branch | grep -c "${rev}" > /dev/null
+    if [ $? -eq 0 ]
+    then
+      echo "Merged  $branch"
+    else
+      echo "Missing $branch"
+    fi
+  done
+
+else
+  echo "Unknwon option"
+  exit 4
+fi
