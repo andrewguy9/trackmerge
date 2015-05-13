@@ -8,5 +8,5 @@ setup(name='trackmerge',
       author_email='athomsonguy@gmail.com',
       install_requires = ['docopts'],
       packages=['trackmerge'],
-      scripts=['bin/ismerged'],
+      scripts=['bin/ismerged', 'bin/isreleased'],
       zip_safe=False)
