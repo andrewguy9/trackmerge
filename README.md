@@ -24,3 +24,9 @@ $ ismerged --depot ~/dev/mongo_mgr/ 5 master feature
 Merged  master
 Missing feature
 ```
+
+## Installation
+
+```
+pip install trackmerge
+```
