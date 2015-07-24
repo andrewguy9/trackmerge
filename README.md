@@ -2,6 +2,14 @@
 
 Collection of tools for tracking software releases with git.
 
+# Installation
+
+```
+pip install trackmerge
+```
+
+# Usage
+
 ## ismerged
 ```
 ismerged
@@ -25,8 +33,3 @@ Merged  master
 Missing feature
 ```
 
-## Installation
-
-```
-pip install trackmerge
-```
