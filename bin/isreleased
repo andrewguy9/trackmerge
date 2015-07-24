@@ -46,5 +46,5 @@ then
   rev=$(git log --all | grep -B5 "$description" | head -1 | awk '{print $2}')
 fi
 
-git tag -l --contains "$rev"
+git tag -l --sort="-version:refname" --contains "$rev"
 
